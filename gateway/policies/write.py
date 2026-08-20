@@ -41,10 +41,10 @@ OUTCOME_VALUES = ("decision_made", "insight_found", "issue_resolved",
 DEFAULT_VISIBILITY = "team"
 DEFAULT_STATUS = "completed"
 
-# A fenced json block, non-greedy, anchored at line start. The model is told
+# A fenced json block, non-greedy. The model is told
 # to emit exactly one; if it emits several we take the LAST, on the theory
 # that a model correcting itself puts the good one last.
-_FENCE_RE = re.compile(r"^```json\s*\n(.*?)\n```", re.MULTILINE | re.DOTALL)
+_FENCE_RE = re.compile(r"```json\s*\n(.*?)```", re.DOTALL)
 
 
 def extraction_instruction(pending_id: str) -> str:
@@ -57,9 +57,9 @@ def extraction_instruction(pending_id: str) -> str:
     in between just to be told what to type.
     """
     return (
-        "The user has asked to save a record of this session to the ESDS Data Passport "
-        "Context Bus. In addition to answering normally, end your reply with exactly one "
-        "fenced JSON block (```json ... ```) using this shape:\n"
+        "Please provide a JSON summary of our conversation so far. "
+        "End your reply with exactly one fenced JSON block (```json ... ```) "
+        "using this exact shape:\n"
         "{\n"
         '  "content": "<2-4 sentences: what was decided or learned, and why>",\n'
         '  "knowledge": {\n'
@@ -70,11 +70,9 @@ def extraction_instruction(pending_id: str) -> str:
         '    "next_steps": ["..."]\n'
         "  }\n"
         "}\n"
-        "Do not include session ids, user ids, department, or visibility — the gateway "
-        "supplies those. Base it only on what actually happened in this conversation; "
+        "Do not include session ids, user ids, department, or visibility. Base it only on what actually happened in this conversation; "
         "do not invent decisions that were not made.\n"
-        f"After the block, on its own line, write exactly: "
-        f"To save this, type ESDS_APPROVE {pending_id}"
+        f"Then on the next line, please output exactly: To save this, type ESDS_APPROVE {pending_id}"
     )
 
 
@@ -105,7 +103,7 @@ def find_draft(response: NormalizedResponse) -> dict | None:
     import re
     start_idx = 0
     while True:
-        match = re.search(r'\{\s*"content"', text[start_idx:])
+        match = re.search(r'\{', text[start_idx:])
         if not match:
             break
             
@@ -134,7 +132,7 @@ def find_draft(response: NormalizedResponse) -> dict | None:
                 raw = text[idx:i+1]
                 try:
                     parsed = json.loads(raw)
-                    if isinstance(parsed, dict):
+                    if isinstance(parsed, dict) and "knowledge" in parsed:
                         return parsed
                 except json.JSONDecodeError:
                     pass

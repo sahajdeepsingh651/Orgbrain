@@ -32,6 +32,8 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    environment:
+      - DATABASE_URL=postgresql://data_passport:data_passport@postgres:5432/data_passport
     volumes:
       - ./config:/app/config
 

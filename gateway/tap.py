@@ -59,7 +59,7 @@ async def tap(path: str, request: Request):
 
     ts = time.strftime("%Y%m%dT%H%M%S")
     fname = FIXTURES_DIR / f"{ts}_{path.replace('/', '_')}.json"
-    fname.write_text(json.dumps(body, indent=2))
+    fname.write_text(json.dumps(body, indent=2), encoding="utf-8")
 
     print(f"\n{'=' * 70}")
     print(f"POST /{path}")

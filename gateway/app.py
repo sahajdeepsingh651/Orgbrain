@@ -90,11 +90,14 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 
 from . import flows
+from ._trace import install_tracer
 from .policies import check as check_policy
 from .policies import pii as pii_policy
 from .policies import read as read_policy
 from .policies import write as write_policy
 from .protocol.detect import detect
+
+install_tracer()  # no-op unless DP_TRACE=1 — see gateway/_trace.py
 
 UPSTREAM = os.environ.get("DP_UPSTREAM_BASE_URL", "https://api.anthropic.com")
 
@@ -145,7 +148,7 @@ def log_usage(*, model: str | None, injected: bool, usage: dict) -> None:
         "arm_label": os.environ.get("DP_ARM_LABEL", ""),
         "usage": usage,
     }
-    with open(USAGE_LOG_PATH, "a") as f:
+    with open(USAGE_LOG_PATH, "a", encoding="utf-8") as f:
         f.write(json.dumps(entry) + "\n")
 
 
@@ -215,8 +218,6 @@ def _apply_write(nr, normalized_resp, vault: dict) -> None:
     
     if msg:
         print(msg, flush=True)
-        with open("/tmp/dp_debug.log", "a") as f:
-            f.write(msg + "\n")
 
 
 async def _restore_sse_stream(raw_chunks, vault: dict):
@@ -448,14 +449,19 @@ async def dashboard_pending():
     """REST endpoint for dashboard to view pending drafts."""
     from .pending import PENDING_DIR
     drafts = []
+    approved_drafts = []
     if PENDING_DIR.exists():
         for p in PENDING_DIR.glob("*.json"):
             try:
-                with open(p) as f:
+                with open(p, encoding="utf-8") as f:
                     draft = json.load(f)
-                    drafts.append(draft)
+                    if draft.get("status") == "pending_approval":
+                        drafts.append(draft)
+                    elif draft.get("status") == "approved":
+                        approved_drafts.append(draft)
             except Exception:
                 pass
     # sort by timestamp descending
     drafts.sort(key=lambda d: d.get("timestamp", 0), reverse=True)
-    return JSONResponse({"drafts": drafts})
+    approved_drafts.sort(key=lambda d: d.get("timestamp", 0), reverse=True)
+    return JSONResponse({"drafts": drafts, "approved_drafts": approved_drafts})

@@ -20,6 +20,9 @@ from app.auth import Identity, require_identity
 from app.domains import DomainValidationError, validate_domain_data
 from app.embeddings import get_embedding_model
 from app.serving import router as serving_router
+from app._trace import install_tracer
+
+install_tracer()  # no-op unless DP_TRACE=1 — see app/_trace.py
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 BRONZE_DIR = Path(os.environ.get("BRONZE_DIR", BASE_DIR / "bronze"))

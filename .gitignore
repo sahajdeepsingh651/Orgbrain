@@ -15,6 +15,7 @@ fixtures/*
 !fixtures/sample_*.json
 !fixtures/README.md
 !fixtures/placeholder_passport.txt
+DEMO-RISKS.md
 
 # Bearer tokens and the account_uuid -> bus identity map. Both are per-developer
 # and both carry real identifiers. Commit the .example.json files instead.
@@ -36,6 +37,9 @@ bronze/
 # state under /tmp by default, but do not commit them if the paths are moved.
 dp_pending/
 dp_outbound_debug*.json
+dp_debug.log
+dp_trace_gateway.log
+dp_trace_store.log
 
 # ---------------------------------------------------------------------------
 # Generated artefacts & logs

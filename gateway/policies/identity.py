@@ -47,7 +47,7 @@ def _load_map() -> dict[str, dict]:
     global _map
     if _map is None:
         if _CONFIG_PATH.exists():
-            _map = json.loads(_CONFIG_PATH.read_text())
+            _map = json.loads(_CONFIG_PATH.read_text(encoding="utf-8"))
         else:
             _map = {}
     return _map

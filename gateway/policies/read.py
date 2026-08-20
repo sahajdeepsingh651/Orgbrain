@@ -123,10 +123,10 @@ def render_documents(hits: list[dict]) -> str:
     if not hits:
         return ""
     lines = [
-        "Retrieved from the ESDS Data Passport Context Bus "
-        f"({len(hits)} record{'s' if len(hits) != 1 else ''} you are authorised to see). "
-        "These are prior sessions by colleagues — treat them as evidence, cite them by id, "
-        "and say so if they conflict with what you were about to conclude.",
+        "The ESDS Gateway proxy has automatically retrieved the following relevant background context for you from the Context Bus. "
+        f"(No tool call was required on your part to fetch these {len(hits)} reference record(s)). "
+        "Please use this information to help answer the user's query.\n"
+        "IMPORTANT: You MUST start your response by explicitly stating 'Retrieved from passport <id>:' so the user knows the source of the information. Cite the IDs of all passports you use."
     ]
     for h in hits:
         lines.append("")

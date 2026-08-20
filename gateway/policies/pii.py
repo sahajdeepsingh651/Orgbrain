@@ -98,7 +98,7 @@ _VERHOEFF_P = (
 
 def _aadhaar_valid(raw: str) -> bool:
     """UIDAI uses the Verhoeff checksum for the Aadhaar check digit."""
-    digits = re.sub(r"\s", "", raw)
+    digits = re.sub(r"[\s-]", "", raw)
     if len(digits) != 12 or not digits.isdigit():
         return False
     if digits[0] in "01":            # UIDAI never issues numbers starting 0/1
@@ -155,7 +155,7 @@ def _gstin_valid(raw: str) -> bool:
 # to run (a candidate with a validator only counts if it passes).
 _PATTERNS: tuple[tuple[re.Pattern, object], ...] = (
     (re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+"), None),                                      # email
-    (re.compile(r"\b[A-Z]{5}\d{4}[A-Z]\b"), _pan_valid),                                       # PAN
+    (re.compile(r"\b[A-Z]{5}\d{4}[A-Z]\b", re.IGNORECASE), _pan_valid),                                       # PAN
     (re.compile(r"\b\d{2}[A-Z]{5}\d{4}[A-Z][0-9A-Z]Z[0-9A-Z]\b"), _gstin_valid),                # GSTIN
     (re.compile(r"\b[A-Z]{4}0[A-Z0-9]{6}\b"), None),                                           # IFSC (no checksum exists)
     (re.compile(r"(?<!\d)(?:\d[ -]?){12,18}\d(?!\d)"), _luhn_ok),                                # card (13-19 digits)
@@ -169,7 +169,8 @@ _PATTERNS: tuple[tuple[re.Pattern, object], ...] = (
 # `full_name` — no generic pattern exists for either.
 _SENSITIVE_JSON_FIELDS = {
     "full_name", "dob", "pan_number", "aadhaar_number",
-    "bank_account", "address", "phone", "email", "emergency_contact",
+    "bank_account", "address", "phone", "email", "emergency_contact", "pan", "pan_card",
+    "credit_card", "card_number", "cc_number", "cc",
 }
 # Note: `_redact_blocks`'s tool_use branch recurses into `input` with this
 # field pass. A bare "name" was previously in this set but it redacts tool
@@ -281,12 +282,40 @@ def _redact_text(text: str, vault: dict, value_to_token: dict) -> str:
     defensive second pass over whatever the field list didn't cover)."""
     try:
         parsed = json.loads(text)
+        if isinstance(parsed, (dict, list)):
+            text = json.dumps(_redact_json_value(parsed, vault, value_to_token), indent=2, ensure_ascii=False)
+            return _apply_patterns(text, vault, value_to_token)
     except (json.JSONDecodeError, TypeError):
-        parsed = None
-    if isinstance(parsed, (dict, list)):
-        text = json.dumps(_redact_json_value(parsed, vault, value_to_token), indent=2, ensure_ascii=False)
-    return _apply_patterns(text, vault, value_to_token)
+        pass
 
+    def _replace_json_block(m):
+        block_text = m.group(2)
+        try:
+            parsed = json.loads(block_text)
+            if isinstance(parsed, (dict, list)):
+                redacted = json.dumps(_redact_json_value(parsed, vault, value_to_token), indent=2, ensure_ascii=False)
+                return m.group(1) + redacted + m.group(3)
+        except (json.JSONDecodeError, TypeError):
+            pass
+        return m.group(0)
+
+    # Find JSON blocks wrapped in markdown (```json ... ```)
+    text = re.sub(r"(```json\s*\n)(.*?)(\n```)", _replace_json_block, text, flags=re.DOTALL)
+    
+    def _replace_kv(m):
+        val = m.group(2).strip()
+        # strip trailing 'and' if present
+        if val.lower().endswith(" and"):
+            val = val[:-4]
+            return m.group(1) + _mint_token(val, vault, value_to_token) + " and"
+        return m.group(1) + _mint_token(val, vault, value_to_token)
+
+    for field in _SENSITIVE_JSON_FIELDS:
+        # Match field name (optional backticks) followed by is/:/= then the value up to "and", ".", or newline
+        pattern = r"(`?" + re.escape(field) + r"`?\s*(?:is|:|=)\s*)(.+?)(?=\s+and\b|\.|\n|$)"
+        text = re.sub(pattern, _replace_kv, text, flags=re.IGNORECASE)
+
+    return _apply_patterns(text, vault, value_to_token)
 
 def _redact_blocks(blocks: list[dict], vault: dict, value_to_token: dict) -> list[dict]:
     out = []

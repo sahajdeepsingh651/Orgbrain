@@ -193,7 +193,7 @@ class AnthropicAdapter:
         for m in nr.messages:
             if m.role == "system" and not supports_system:
                 text = "\n".join(b.get("text", "") for b in m.content if b.get("type") == "text")
-                reminder = {"type": "text", "text": f"<system-reminder>\n{text}\n</system-reminder>"}
+                reminder = {"type": "text", "text": f"\n\n**Automated Instruction:**\n{text}"}
                 if out and out[-1]["role"] == "user":
                     out[-1] = {"role": "user", "content": list(out[-1]["content"]) + [reminder]}
                 else:

@@ -79,10 +79,8 @@ _failed_drafts: dict[str, str] = {} # pending_id -> failure_reason
 _failed_drafts_lock = threading.Lock()
 
 def _log(msg: str) -> None:
-    print(f"[FLOW] {msg}", flush=True)
     with _log_lock:
-        with open("/tmp/dp_debug.log", "a") as f:
-            f.write(f"[FLOW] {msg}\n")
+        print(f"[FLOW] {msg}", flush=True)
 
 
 def _scan_into_vault(text: str, vault: dict) -> str:
@@ -298,10 +296,10 @@ async def handle_write_request(nr, vault: dict, *, bus=bus_client):
                         "Nothing was written to the Context Bus.")
             else:
                 pending.set_status(pending_id, pending.STATUS_REJECTED)
-                note = (f"ESDS Data Passport: draft {pending_id} discarded. "
+                note = (f"The ESDS Gateway proxy intercepted the reject command. Draft {pending_id} was discarded. "
                         "Nothing was written to the Context Bus.")
                 diag["pending_id"] = pending_id
-        return read_policy.add_context(nr, note + " Tell the user this."), diag
+        return read_policy.add_context(nr, note + " Please confirm this to the user."), diag
 
     # --- submit: mint the id, ask for a draft. Writes NOTHING. ---
     if markers_policy.find_marker(nr, SUBMIT_MARKER) is not None:
@@ -378,6 +376,7 @@ async def _handle_approve(nr, diag, approve_line, session_id, account_uuid, *, b
         draft, session_id=session_id, user_id=bus_id.user_id,
         department=bus_id.department, team=bus_id.team,
         visibility=visibility, flags=flags,
+        agent_id="claude-code",
     )
     key = pending.idempotency_key(session_id, payload)
 
@@ -387,9 +386,9 @@ async def _handle_approve(nr, diag, approve_line, session_id, account_uuid, *, b
         diag["reason"] = "bus_401"
         pending.set_status(pending_id, pending.STATUS_PENDING, last_error="401")
         return read_policy.add_context(nr, (
-            f"ESDS Data Passport: save FAILED — the Context Bus rejected this session's "
+            f"The ESDS Gateway proxy attempted to process the approval, but save FAILED — the Context Bus rejected this session's "
             f"credentials (401). Draft {pending_id} is still pending; nothing was written. "
-            "Tell the user, and do not claim it was saved.")), diag
+            "Please confirm this failure to the user, and do not claim it was saved.")), diag
     except bus_client.BusUnavailable as exc:
         # Queue, and say so. Never report success for a write that did not
         # happen — that is the one lie this system cannot afford.
@@ -400,8 +399,8 @@ async def _handle_approve(nr, diag, approve_line, session_id, account_uuid, *, b
         pending.set_status(pending_id, pending.STATUS_QUEUED,
                            last_error=str(exc), ingest_payload=payload)
         return read_policy.add_context(nr, (
-            f"ESDS Data Passport: the Context Bus is unreachable. Draft {pending_id} is "
-            "QUEUED and has NOT been saved yet. Tell the user it is queued — do not say "
+            f"The ESDS Gateway proxy attempted to process the approval, but the Context Bus is unreachable. Draft {pending_id} is "
+            "QUEUED and has NOT been saved yet. Please confirm to the user it is queued — do not say "
             "it was saved.")), diag
 
     if status in (200, 201):
@@ -412,11 +411,12 @@ async def _handle_approve(nr, diag, approve_line, session_id, account_uuid, *, b
         diag["pending_id"] = pending_id
         pending.set_status(pending_id, pending.STATUS_APPROVED, record_id=record_id)
         note = (
-            f"ESDS Data Passport: draft {pending_id} was SAVED to the Context Bus as "
+            "The ESDS Gateway proxy intercepted the approval command and automatically processed it. "
+            f"Draft {pending_id} was successfully SAVED to the Context Bus as "
             f"record {record_id} with visibility '{visibility}'"
             + (" (already existed — deduplicated by idempotency key)" if deduped else "")
-            + ". Colleagues who are permitted to see it can now retrieve it with "
-              "ESDS_SEARCH. Tell the user."
+            + ". (No tool call was required on your part). Colleagues who are permitted to see it can now retrieve it with "
+              "ESDS_SEARCH. Please confirm this success to the user."
         )
         return read_policy.add_context(nr, note), diag
 
@@ -424,8 +424,8 @@ async def _handle_approve(nr, diag, approve_line, session_id, account_uuid, *, b
     detail = (body or {}).get("error") or (body or {}).get("detail") or ""
     pending.set_status(pending_id, pending.STATUS_PENDING, last_error=f"{status}: {detail}")
     return read_policy.add_context(nr, (
-        f"ESDS Data Passport: save FAILED ({status}: {detail}). Draft {pending_id} is still "
-        "pending; nothing was written. Tell the user.")), diag
+        f"The ESDS Gateway proxy attempted to process the approval, but save FAILED ({status}: {detail}). Draft {pending_id} is still "
+        "pending; nothing was written. Please confirm this failure to the user.")), diag
 
 
 def handle_write_response(nr, response, vault: dict) -> dict:

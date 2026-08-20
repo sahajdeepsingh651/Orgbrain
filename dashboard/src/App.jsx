@@ -7,7 +7,7 @@ import ApprovalInbox from './components/ApprovalInbox';
 import { PASSPORTS, DRAFTS, SERVICES } from './data';
 
 const TITLES = {
-  home: ['Overview', 'What Orgbrain does, in the order it happens.'],
+  home: ['Overview', 'What Data Passport does, in the order it happens.'],
   xray: ['Live X-Ray', 'The same request before and after the checkpoint.'],
   bus: ['Context Bus', 'Approved answers the company can retrieve.'],
   inbox: ['Approval Inbox', 'Drafts that need a person before they are stored.'],
@@ -24,10 +24,76 @@ export default function App() {
   const [tab, setTab] = useState('home');
   const [passports, setPassports] = useState(PASSPORTS);
   const [drafts, setDrafts] = useState(DRAFTS);
+  const [hiddenDraftIds, setHiddenDraftIds] = useState(new Set());
   const [toast, setToast] = useState('');
   const timer = useRef(null);
 
-  useEffect(() => () => clearTimeout(timer.current), []);
+  useEffect(() => {
+    const fetchDrafts = async () => {
+      try {
+        const res = await fetch(`http://${window.location.hostname}:8080/v1/dashboard/pending`);
+        const data = await res.json();
+        
+        setHiddenDraftIds(prevHidden => {
+          const mapped = (data.drafts || [])
+            .filter(d => !prevHidden.has(d.pending_id))
+            .map(d => ({
+              id: d.pending_id,
+              session: d.session_id ? d.session_id.substring(0, 8) : 'unknown',
+              author: d.account_uuid ? 'user' : 'unknown',
+              title: (d.draft?.knowledge?.title) || `Draft ${d.pending_id}`,
+              summary: (d.draft?.knowledge?.summary) || d.draft?.content || '',
+              flags: d.sensitivity_flags?.redaction_count ? `${d.sensitivity_flags.redaction_count} items removed` : 'None',
+              visibility: d.draft?.visibility || 'team',
+              captured: new Date((d.created_at || Date.now()/1000) * 1000).toLocaleTimeString(),
+              raw: d
+            }));
+          setDrafts(mapped);
+          return prevHidden;
+        });
+
+        const mappedApproved = (data.approved_drafts || []).map(d => ({
+          id: d.pending_id,
+          title: (d.draft?.knowledge?.title) || `Draft ${d.pending_id}`,
+          summary: (d.draft?.knowledge?.summary) || d.draft?.content || '',
+          team: 'platform',
+          visibility: d.draft?.visibility || 'team',
+          approver: 'you',
+          date: 'today'
+        }));
+
+        setPassports(prevPassports => {
+          const all = [...mappedApproved];
+          const unique = [];
+          const seen = new Set();
+          // Put mappedApproved at the top
+          for (const p of all) {
+            if (!seen.has(p.id)) {
+              seen.add(p.id);
+              unique.push(p);
+            }
+          }
+          // Then append any existing passports (including mock data) that weren't in mappedApproved
+          for (const p of prevPassports) {
+            if (!seen.has(p.id)) {
+              seen.add(p.id);
+              unique.push(p);
+            }
+          }
+          return unique;
+        });
+
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchDrafts();
+    const interval = setInterval(fetchDrafts, 3000);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timer.current);
+    };
+  }, []);
 
   const flash = (msg) => {
     setToast(msg);
@@ -36,15 +102,17 @@ export default function App() {
   };
 
   const approve = (d) => {
+    setHiddenDraftIds(prev => new Set(prev).add(d.id));
     setDrafts((s) => s.filter((x) => x.id !== d.id));
     setPassports((s) => [
-      { id: d.id, title: d.title, summary: d.summary, team: 'platform', visibility: 'team', approver: 'you', date: 'today' },
+      { id: d.id, title: d.title, summary: d.summary, team: 'platform', visibility: d.visibility, approver: 'you', date: 'today' },
       ...s,
     ]);
     flash('Published to the Context Bus — ' + d.id + ' is now retrievable.');
   };
 
   const reject = (d) => {
+    setHiddenDraftIds(prev => new Set(prev).add(d.id));
     setDrafts((s) => s.filter((x) => x.id !== d.id));
     flash('Discarded ' + d.id + '. Nothing was stored.');
   };
@@ -60,7 +128,7 @@ export default function App() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em' }}>Data Passport</div>
-            {/* <div style={{ fontSize: 11, color: '#8A8398', letterSpacing: '0.04em', textTransform: 'uppercase' }}>Data Passport</div> */}
+            <div style={{ fontSize: 11, color: '#8A8398', letterSpacing: '0.04em', textTransform: 'uppercase' }}>Data Passport</div>
           </div>
         </div>
 

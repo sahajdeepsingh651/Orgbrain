@@ -85,15 +85,9 @@ def save(*, pending_id: str, session_id: str, account_uuid: str | None,
     tmp_path = path.with_suffix(".tmp")
     
     with _pending_lock:
-        tmp_path.write_text(json.dumps(record, indent=2, ensure_ascii=False))
-        tmp_path.rename(path)
-    
-    # We use a simple global lock instead of per-session, as load is low
-    from .flows import _log_lock
-    with _log_lock:
-        with open("/tmp/dp_debug.log", "a") as f:
-            f.write(f"[PENDING] saved {pending_id} to {path}\n")
-        
+        tmp_path.write_text(json.dumps(record, indent=2, ensure_ascii=False), encoding="utf-8")
+        tmp_path.replace(path)
+
     return record
 
 
@@ -112,7 +106,7 @@ def load(pending_id: str, *, session_id: str | None = None) -> dict | None:
         if not path.exists():
             return None
         try:
-            record = json.loads(path.read_text())
+            record = json.loads(path.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError):
             return None
             
@@ -132,7 +126,7 @@ def set_status(pending_id: str, status: str, **extra) -> dict | None:
             return None
             
         try:
-            record = json.loads(path.read_text())
+            record = json.loads(path.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError):
             return None
             
@@ -140,18 +134,13 @@ def set_status(pending_id: str, status: str, **extra) -> dict | None:
         record.update(extra)
         
         tmp_path = path.with_suffix(".tmp")
-        tmp_path.write_text(json.dumps(record, indent=2, ensure_ascii=False))
-        tmp_path.rename(path)
-        
+        tmp_path.write_text(json.dumps(record, indent=2, ensure_ascii=False), encoding="utf-8")
+        tmp_path.replace(path)
+
     return record
 
 
 def delete(pending_id: str) -> bool:
-    import traceback
-    with open("/tmp/dp_debug.log", "a") as f:
-        f.write(f"[PENDING] deleting {pending_id}\n")
-        f.write("".join(traceback.format_stack()))
-        
     try:
         path = _path(pending_id)
     except ValueError:
@@ -177,7 +166,7 @@ def _list_with_status(status: str, session_id: str | None) -> list[dict]:
     out = []
     for path in sorted(_dir().glob("*.json")):
         try:
-            record = json.loads(path.read_text())
+            record = json.loads(path.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError):
             continue
         if record.get("status") != status:
