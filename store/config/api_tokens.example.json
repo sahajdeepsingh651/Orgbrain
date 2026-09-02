@@ -1,0 +1,5 @@
+{
+  "dev-local-token":       { "user_id": "u-dev",     "department": "Engineering", "team": "platform" },
+  "dev-local-token-2":     { "user_id": "u-eng-2",   "department": "Engineering", "team": "mobile" },
+  "dev-local-token-sales": { "user_id": "u-sales-1", "department": "Sales",       "team": "enterprise" }
+}

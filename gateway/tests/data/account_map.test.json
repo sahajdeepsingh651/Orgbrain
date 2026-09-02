@@ -1,0 +1,20 @@
+{
+  "aaaaaaaa-0000-4000-8000-000000000001": {
+    "bus_token": "test-token-platform",
+    "user_id": "u-dev",
+    "department": "Engineering",
+    "team": "platform"
+  },
+  "bbbbbbbb-0000-4000-8000-000000000002": {
+    "bus_token": "test-token-mobile",
+    "user_id": "u-eng-2",
+    "department": "Engineering",
+    "team": "mobile"
+  },
+  "cccccccc-0000-4000-8000-000000000003": {
+    "bus_token": "test-token-sales",
+    "user_id": "u-sales-1",
+    "department": "Sales",
+    "team": "enterprise"
+  }
+}

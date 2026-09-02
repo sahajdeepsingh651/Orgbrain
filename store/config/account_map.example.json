@@ -1,0 +1,6 @@
+{
+  "_comment": "Copy to account_map.json and replace the UUIDs with your own. Find yours by running the gateway with DP_DEBUG_LOG_OUTBOUND=1 and reading metadata.user_id, or from any capture in fixtures/. account_map.json is gitignored because account_uuid is a real identifier.",
+  "aaaaaaaa-0000-4000-8000-000000000001": { "bus_token": "dev-local-token",       "user_id": "u-dev",     "department": "Engineering", "team": "platform" },
+  "bbbbbbbb-0000-4000-8000-000000000002": { "bus_token": "dev-local-token-2",     "user_id": "u-eng-2",   "department": "Engineering", "team": "mobile" },
+  "cccccccc-0000-4000-8000-000000000003": { "bus_token": "dev-local-token-sales", "user_id": "u-sales-1", "department": "Sales",       "team": "enterprise" }
+}

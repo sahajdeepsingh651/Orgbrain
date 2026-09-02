@@ -1,0 +1,2 @@
+/* Layout-only styles; all component styling is inline in the JSX. */
+#root { min-height: 100vh; }

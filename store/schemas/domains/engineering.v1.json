@@ -1,0 +1,10 @@
+{
+  "domain": "engineering.v1",
+  "fields": {
+    "repo": "string",
+    "files_changed": "string[]",
+    "pr_link": "url",
+    "root_cause": "string",
+    "fix_type": "enum:bugfix|feature|refactor|hotfix"
+  }
+}

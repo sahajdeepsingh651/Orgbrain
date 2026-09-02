@@ -1,0 +1,113 @@
+# ---------------------------------------------------------------------------
+# Secrets and captured traffic — the rules that matter most.
+#
+# This project's whole point is stopping confidential data leaving through AI
+# tooling. A leak in its own repo would be the worst possible advertisement.
+# ---------------------------------------------------------------------------
+
+# Real captured request bodies. These contain the developer's real
+# account_uuid / device_id / session_id and whatever conversation was in
+# flight — potentially credentials pulled out of tool_result blocks.
+# NEVER commit these. The sanitised sample_* fixtures are committed instead;
+# they have the same wire shape with entirely synthetic identifiers.
+fixtures/*
+!fixtures/.gitkeep
+!fixtures/sample_*.json
+!fixtures/README.md
+!fixtures/placeholder_passport.txt
+DEMO-RISKS.md
+
+# Bearer tokens and the account_uuid -> bus identity map. Both are per-developer
+# and both carry real identifiers. Commit the .example.json files instead.
+store/config/api_tokens.json
+store/config/account_map.json
+**/config/*.local.json
+
+# Environment files (DATABASE_URL, MCP_API_TOKEN, ...)
+.env
+.env.*
+!.env.example
+store/.env
+
+# Raw ingest payloads written before validation — may hold anything a caller sent.
+store/bronze/
+bronze/
+
+# Drafts awaiting human approval, and debug payload dumps. Both are runtime
+# state under /tmp by default, but do not commit them if the paths are moved.
+dp_pending/
+dp_outbound_debug*.json
+dp_debug.log
+dp_trace_gateway.log
+dp_trace_store.log
+
+# ---------------------------------------------------------------------------
+# Generated artefacts & logs
+# ---------------------------------------------------------------------------
+docs/usage_log.jsonl
+docs/measurement-table.md
+PASS
+
+# ---------------------------------------------------------------------------
+# Python Environments & Caches
+# ---------------------------------------------------------------------------
+.venv/
+venv/
+**/.venv/
+**/venv/
+ENV/
+env/
+
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ---------------------------------------------------------------------------
+# Build & Distribution Artifacts
+# ---------------------------------------------------------------------------
+dist/
+build/
+node_modules/
+.vite/
+.next/
+
+# ---------------------------------------------------------------------------
+# Editors, Tools & OS Files
+# ---------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+.idea/
+.vscode/
+.claude/
+*.swp
+*.swo
+*~
+
+# ---------------------------------------------------------------------------
+# Large Archives & Binaries
+# ---------------------------------------------------------------------------
+*.tar.gz
+*.tgz
+*.tar
+docker-compose
+
+# ---------------------------------------------------------------------------
+# Offline Caches
+# ---------------------------------------------------------------------------
+offline_model_cache/
