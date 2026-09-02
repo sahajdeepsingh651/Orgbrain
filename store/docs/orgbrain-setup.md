@@ -1,6 +1,6 @@
-# Data Passport — Running the Core Service Locally
+# Orgbrain — Running the Core Service Locally
 
-> Status: the core service (build steps 1–6 of `data-passport-core-service.md` §7) is fully built and tested as of 2026-08-08. This doc is the map for anyone (or any fresh session) picking this repo up cold: what exists, where it lives, and the exact commands to get it running and to verify it still works.
+> Status: the core service (build steps 1–6 of `orgbrain-core-service.md` §7) is fully built and tested as of 2026-08-08. This doc is the map for anyone (or any fresh session) picking this repo up cold: what exists, where it lives, and the exact commands to get it running and to verify it still works.
 
 ## 1. Repo layout
 
@@ -29,7 +29,7 @@ vector-lab1/
     └── tests/                   — integration tests exercised against a live server + DB (see §5)
 ```
 
-No dashboard exists yet (React + Vite + TypeScript is the decided-but-unbuilt choice — see `data-passport-stack.md` §1).
+No dashboard exists yet (React + Vite + TypeScript is the decided-but-unbuilt choice — see `orgbrain-stack.md` §1).
 
 ## 2. Prerequisites
 
@@ -76,7 +76,7 @@ The repo's own tests assume these three exist — recreate them if you regenerat
 }
 ```
 
-Every `POST /v1/ingest`, `GET /v1/search`/`/v1/agent-activity`/`/v1/handoff`/`/v1/bus/subscribe` call needs `Authorization: Bearer <one of these tokens>`. See `data-passport-api-reference.md` for exactly how each endpoint uses the resolved identity, and `decisions-log.md` (2026-08-08, "Auth model for build step 4") for why tokens map to fixed identities instead of trusting a self-declared one.
+Every `POST /v1/ingest`, `GET /v1/search`/`/v1/agent-activity`/`/v1/handoff`/`/v1/bus/subscribe` call needs `Authorization: Bearer <one of these tokens>`. See `orgbrain-api-reference.md` for exactly how each endpoint uses the resolved identity, and `decisions-log.md` (2026-08-08, "Auth model for build step 4") for why tokens map to fixed identities instead of trusting a self-declared one.
 
 ## 5. Running it
 
@@ -111,7 +111,7 @@ cd backend
 ./.venv/Scripts/python.exe tests/test_mcp.py       # this one spawns mcp_server.py itself — don't start it separately
 ```
 
-Each test prints PASS/FAIL per case and cleans up its own rows afterward (`DELETE ... WHERE session_id LIKE 'sess-<prefix>-%'`) — re-running them is safe. See `data-passport-stack.md` §3 Build Log for what each one actually verified when it was written and why (real bugs it originally caught, not just "it passes").
+Each test prints PASS/FAIL per case and cleans up its own rows afterward (`DELETE ... WHERE session_id LIKE 'sess-<prefix>-%'`) — re-running them is safe. See `orgbrain-stack.md` §3 Build Log for what each one actually verified when it was written and why (real bugs it originally caught, not just "it passes").
 
 ## 6. Known environment quirks (verified 2026-08-08, on Windows + Git Bash)
 
@@ -123,9 +123,9 @@ Each test prints PASS/FAIL per case and cleans up its own rows afterward (`DELET
 
 This doc tells you how to run what exists. For what exists and how thoroughly it was verified, read (in this order):
 
-1. `data-passport-core-service.md` — the design contract, now annotated inline with "Built (date): ..." notes wherever an endpoint's actual behavior was decided during implementation.
-2. `data-passport-api-reference.md` — concrete request/response examples for every endpoint and MCP tool.
-3. `data-passport-stack.md` §3 Build Log — chronological, one entry per build step, each stating exactly what was tested and what it found (including real bugs caught).
+1. `orgbrain-core-service.md` — the design contract, now annotated inline with "Built (date): ..." notes wherever an endpoint's actual behavior was decided during implementation.
+2. `orgbrain-api-reference.md` — concrete request/response examples for every endpoint and MCP tool.
+3. `orgbrain-stack.md` §3 Build Log — chronological, one entry per build step, each stating exactly what was tested and what it found (including real bugs caught).
 4. `decisions-log.md` — every design decision and trade-off, including ones made mid-implementation that reversed or extended what was originally documented.
 
-All 6 build-order steps in `data-passport-core-service.md` §7 are done. Nothing beyond that (dashboard, endpoint-side capture mechanism, MCP alternatives) has been started — see `README.md`'s Current Status for the exact boundary.
+All 6 build-order steps in `orgbrain-core-service.md` §7 are done. Nothing beyond that (dashboard, endpoint-side capture mechanism, MCP alternatives) has been started — see `README.md`'s Current Status for the exact boundary.

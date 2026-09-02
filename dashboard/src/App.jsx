@@ -7,7 +7,7 @@ import ApprovalInbox from './components/ApprovalInbox';
 import { PASSPORTS, DRAFTS, SERVICES } from './data';
 
 const TITLES = {
-  home: ['Overview', 'What Data Passport does, in the order it happens.'],
+  home: ['Overview', 'What Orgbrain does, in the order it happens.'],
   xray: ['Live X-Ray', 'The same request before and after the checkpoint.'],
   bus: ['Context Bus', 'Approved answers the company can retrieve.'],
   inbox: ['Approval Inbox', 'Drafts that need a person before they are stored.'],
@@ -127,8 +127,8 @@ export default function App() {
             <div style={{ width: 13, height: 13, border: '2.5px solid #fff', borderRadius: 4 }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em' }}>Data Passport</div>
-            <div style={{ fontSize: 11, color: '#8A8398', letterSpacing: '0.04em', textTransform: 'uppercase' }}>Data Passport</div>
+            <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em' }}>Orgbrain</div>
+            <div style={{ fontSize: 11, color: '#8A8398', letterSpacing: '0.04em', textTransform: 'uppercase' }}>Orgbrain</div>
           </div>
         </div>
 

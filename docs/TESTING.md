@@ -1,4 +1,4 @@
-# How to test Data Passport
+# How to test Orgbrain
 
 Three layers. Layer 1 needs nothing running. Layer 3 is the demo, as a test.
 

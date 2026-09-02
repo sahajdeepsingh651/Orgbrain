@@ -288,11 +288,11 @@ async def handle_write_request(nr, vault: dict, *, bus=bus_client):
         nr = markers_policy.strip_marker(nr, REJECT_MARKER)
         record = pending.load(pending_id, session_id=session_id) if pending_id else None
         if record is None:
-            note = (f"ESDS Data Passport: no pending draft {pending_id!r} for this session. "
+            note = (f"ESDS Orgbrain: no pending draft {pending_id!r} for this session. "
                     "Nothing was discarded.")
         else:
             if record.get("status") == pending.STATUS_REJECTED:
-                note = (f"ESDS Data Passport: draft {pending_id} was ALREADY discarded. "
+                note = (f"ESDS Orgbrain: draft {pending_id} was ALREADY discarded. "
                         "Nothing was written to the Context Bus.")
             else:
                 pending.set_status(pending_id, pending.STATUS_REJECTED)
@@ -311,7 +311,7 @@ async def handle_write_request(nr, vault: dict, *, bus=bus_client):
             diag["reason"] = "unknown_account"
             nr = markers_policy.strip_marker(nr, SUBMIT_MARKER)
             return read_policy.add_context(nr, (
-                "ESDS Data Passport: this session's account is not registered with the "
+                "ESDS Orgbrain: this session's account is not registered with the "
                 "Context Bus, so nothing can be saved. Tell the user to check their "
                 "gateway identity mapping.")), diag
         pending_id = pending.new_id()
@@ -343,11 +343,11 @@ async def _handle_approve(nr, diag, approve_line, session_id, account_uuid, *, b
                 failure_reason = _failed_drafts.pop(pending_id, None)
                 
         if failure_reason:
-            msg = (f"ESDS Data Passport: draft {pending_id} FAILED SCHEMA VALIDATION "
+            msg = (f"ESDS Orgbrain: draft {pending_id} FAILED SCHEMA VALIDATION "
                    f"and was not captured. Reason: {failure_reason}. "
                    "You must submit a new draft with the corrected schema.")
         else:
-            msg = (f"ESDS Data Passport: no pending draft {pending_id!r} for this session. "
+            msg = (f"ESDS Orgbrain: no pending draft {pending_id!r} for this session. "
                    "Nothing was saved. Tell the user.")
                    
         return read_policy.add_context(nr, msg), diag
@@ -357,7 +357,7 @@ async def _handle_approve(nr, diag, approve_line, session_id, account_uuid, *, b
         diag["reason"] = "already_approved"
         record_id = record.get("record_id", "unknown")
         return read_policy.add_context(nr, (
-            f"ESDS Data Passport: draft {pending_id} was ALREADY SAVED to the Context Bus as "
+            f"ESDS Orgbrain: draft {pending_id} was ALREADY SAVED to the Context Bus as "
             f"record {record_id}. Tell the user it was successfully saved."
         )), diag
 
@@ -365,7 +365,7 @@ async def _handle_approve(nr, diag, approve_line, session_id, account_uuid, *, b
     if bus_id is None:
         diag["reason"] = "unknown_account"
         return read_policy.add_context(nr, (
-            "ESDS Data Passport: cannot save — this session's account is not registered "
+            "ESDS Orgbrain: cannot save — this session's account is not registered "
             "with the Context Bus. Nothing was written.")), diag
 
     draft = record["draft"]

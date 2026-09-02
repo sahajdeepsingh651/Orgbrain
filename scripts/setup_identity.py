@@ -47,7 +47,7 @@ class CaptureHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
 
 def setup_configs(account_uuid):
-    print("\nLet's configure your Data Passport identity.")
+    print("\nLet's configure your Orgbrain identity.")
     user_id = input("Enter your username (e.g. u-dev): ") or "u-dev"
     department = input("Enter your department (e.g. Engineering): ") or "Engineering"
     team = input("Enter your team (e.g. platform): ") or "platform"

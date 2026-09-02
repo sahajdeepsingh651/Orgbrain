@@ -1,8 +1,8 @@
-# Data Passport — Architecture Doc (Medallion Lakehouse)
+# Orgbrain — Architecture Doc (Medallion Lakehouse)
 
 ## 1. The idea in one line
 
-Knowledge that should move across the org doesn't. Data that shouldn't move (PII, credentials, customer data) does. **Data Passport fixes both at once**: a single on-device checkpoint strips PII/credentials before anything leaves the endpoint — whether it's headed to our own knowledge base or to an external AI — and a data lakehouse structures and serves whatever's left.
+Knowledge that should move across the org doesn't. Data that shouldn't move (PII, credentials, customer data) does. **Orgbrain fixes both at once**: a single on-device checkpoint strips PII/credentials before anything leaves the endpoint — whether it's headed to our own knowledge base or to an external AI — and a data lakehouse structures and serves whatever's left.
 
 > Updated 2026-08-07 with ideas adopted from researching Glean's architecture — see `glean-research.md` for full findings and what we chose not to copy. Updated again 2026-08-07: PII/credential detection & redaction moved fully to the endpoint device — see § The Endpoint Checkpoint and `decisions-log.md`.
 
@@ -22,12 +22,12 @@ We're using the **lakehouse / medallion pattern**, lightly implemented, because 
 
 Before Bronze, before anything leaves the device at all: a single on-device detection & redaction engine inspects outbound content and strips PII/credentials — regardless of destination. This is the real passport-control moment; everything downstream (Bronze/Gate/Silver/Gold) operates on already-clean content.
 
-- **One shared engine, two outbound flows** — the same on-device library is invoked whether content is headed toward Data Passport's own ingest API (always redact, no exceptions) or toward an external AI (destination-based policy, `data-passport-security-egress.md` §2). This doc previously described these as separate checkpoints (a server-side "Ingestion Gate" and an endpoint-side "Egress Gate"); they've since been unified — see `decisions-log.md`.
+- **One shared engine, two outbound flows** — the same on-device library is invoked whether content is headed toward Orgbrain's own ingest API (always redact, no exceptions) or toward an external AI (destination-based policy, `orgbrain-security-egress.md` §2). This doc previously described these as separate checkpoints (a server-side "Ingestion Gate" and an endpoint-side "Egress Gate"); they've since been unified — see `decisions-log.md`.
 - Detection: regex + pattern matching for secrets (API keys, tokens, connection strings — gitleaks-style patterns) and PII (emails, phone numbers, names, customer IDs — regex plus a lightweight NER pass, e.g. Presidio).
 - Redaction: flagged spans are stripped or replaced with placeholders (`[REDACTED_EMAIL]`) before the request ever leaves the device — never silently deleted, since the fact that something was caught is itself useful signal.
 - What actually reaches the server is metadata only, never the raw flagged values: `sensitivity_flags` (`contains_pii`, `contains_credentials`, `redaction_applied`, `redaction_count`) travels with the redacted content so the central audit trail can be populated without the central system ever seeing what was caught.
 - **Team decision (2026-08-07): no server-side PII scanning, by design.** The central system trusts the endpoint's redaction completely and never independently re-scans incoming content. This keeps the privacy claim structurally true — "we never receive it, so we can't leak it, not even to our own admins" — rather than merely policy-enforced. Accepted trade-off: there is no central backstop if an endpoint's detection has a bug, is an outdated version, or is bypassed. Not hidden — see `decisions-log.md`.
-- Build ownership: this engine lives inside whatever endpoint-side software the team eventually builds (browser extension / network proxy / IDE plugin — still undecided, see `data-passport-security-egress.md` §4–5). It is explicitly **not** part of the core service being built first (`data-passport-core-service.md`).
+- Build ownership: this engine lives inside whatever endpoint-side software the team eventually builds (browser extension / network proxy / IDE plugin — still undecided, see `orgbrain-security-egress.md` §4–5). It is explicitly **not** part of the core service being built first (`orgbrain-core-service.md`).
 
 ### Bronze — Raw / Unfiltered
 
@@ -41,7 +41,7 @@ Before Bronze, before anything leaves the device at all: a single on-device dete
 Nothing reaches Silver without passing through it — but PII/credential detection is no longer this checkpoint's job; that already happened at the endpoint, above.
 
 1. **Provenance tagging** — every record is stamped with team, author, agent/session ID, source system, and timestamp.
-2. **`domain_data` type validation** — reject with a clear error on a type mismatch against the domain's declared schema (`data-passport-schema.md` §4.0).
+2. **`domain_data` type validation** — reject with a clear error on a type mismatch against the domain's declared schema (`orgbrain-schema.md` §4.0).
 3. **Structuring / extraction** — the (already-redacted) text is turned into a knowledge record: title, summary, tags, team, links to source.
 4. **Audit logging** — the endpoint's reported `sensitivity_flags` metadata (what was flagged and how much, never the actual values) plus any validation failures are written to `redaction_audit_log`. Still your demo evidence — "here's what tried to cross the border and didn't" — just sourced from endpoint-reported metadata instead of a central scan.
 
@@ -70,9 +70,9 @@ Resolved 2026-08-07 (previously an open question, see `decisions-log.md`). Not e
 - **Mechanically, this reuses the pipeline we already have**: a session only becomes a Silver/Gold record when `record_insight` is called.
   - Admin-mandated categories → `record_insight` fires automatically at session end (employee is notified why, for transparency — not a silent capture).
   - Everything else → the employee (or their agent, with confirmation) calling `record_insight` **is** the opt-in. No call, no shared record. The session can still exist locally for the employee's own reference/handoff use — it just never crosses into Bronze.
-- Every resulting record carries `consent_basis` (`admin_mandated` | `user_opted_in`) and `consent_actor` (which policy rule, or which employee) — see `data-passport-schema.md` §A — so the audit trail shows not just what was captured but why it was allowed to be.
+- Every resulting record carries `consent_basis` (`admin_mandated` | `user_opted_in`) and `consent_actor` (which policy rule, or which employee) — see `orgbrain-schema.md` §A — so the audit trail shows not just what was captured but why it was allowed to be.
 
-This is the same admin-floor/employee-ceiling shape used for the Egress Gate's destination and category selection (`data-passport-security-egress.md` § Policy configuration model) — one consistent pattern across both gates rather than a different consent mechanism per checkpoint.
+This is the same admin-floor/employee-ceiling shape used for the Egress Gate's destination and category selection (`orgbrain-security-egress.md` § Policy configuration model) — one consistent pattern across both gates rather than a different consent mechanism per checkpoint.
 
 ## 4. Serving layer — how agents and teams actually use it
 
@@ -84,7 +84,7 @@ An **MCP server** sits on top of Gold and exposes tools any connected AI agent c
 - `get_agent_activity(team | project)` — see what any agent, anywhere in the org, is working on right now.
 - `handoff(session_id)` — pick up the context/state another agent session left off with.
 
-A lightweight web dashboard reads the same Gold tables to visualize: live agent activity feed, knowledge search UI, and the redaction audit log (the "what didn't cross the border" view) — this last one is the strongest visual proof of the "Data Passport" concept for judges.
+A lightweight web dashboard reads the same Gold tables to visualize: live agent activity feed, knowledge search UI, and the redaction audit log (the "what didn't cross the border" view) — this last one is the strongest visual proof of the "Orgbrain" concept for judges.
 
 ## 5. End-to-end flow
 
@@ -125,7 +125,7 @@ Because with a 4-person team on a hackathon clock, that infrastructure is pure s
 
 ## 7. Suggested team split (4 people)
 
-1. **Endpoint Checkpoint (detection & redaction)** — build the on-device PII/secret detection engine and redaction logic; shared by both the ingest-bound flow and the Egress Gate's AI-bound flow (`data-passport-security-egress.md`).
+1. **Endpoint Checkpoint (detection & redaction)** — build the on-device PII/secret detection engine and redaction logic; shared by both the ingest-bound flow and the Egress Gate's AI-bound flow (`orgbrain-security-egress.md`).
 2. **Bronze + Gate (ingestion, validation, structuring)** — raw capture format, `domain_data` type validation, provenance tagging, structuring/extraction, audit logging from endpoint-reported metadata.
 3. **Silver + Gold (data model & search)** — Postgres schema, pgvector embeddings, dedup logic, aggregation views.
 4. **MCP server + Dashboard** — expose the tools (`search_knowledge`, `record_insight`, `announce_task`, `get_agent_activity`, `handoff`) and build the demo UI: knowledge search view, live agent activity feed, and the redaction audit log view (the visual "proof" of the theme).

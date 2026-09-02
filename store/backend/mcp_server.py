@@ -1,6 +1,6 @@
 """Standalone MCP server exposing search_knowledge, get_agent_activity, handoff —
 thin wrappers over the exact same functions app/serving.py's REST routes call
-(data-passport-core-service.md §5: "one implementation, two protocol faces").
+(orgbrain-core-service.md §5: "one implementation, two protocol faces").
 
 Runs over stdio — the standard local-subprocess MCP transport (Claude Desktop/Claude
 Code spawn a server like this and talk to it over stdin/stdout). Identity is resolved
@@ -21,7 +21,7 @@ from app.serving import do_agent_activity, do_handoff, do_search
 
 load_dotenv()
 
-mcp = MCPServer("data-passport")
+mcp = MCPServer("orgbrain")
 
 _pool: asyncpg.Pool | None = None
 _identity = None
@@ -31,7 +31,7 @@ _identity = None
 async def search_knowledge(
     query: str, limit: int = 10, department: str | None = None, team: str | None = None,
 ) -> list[dict]:
-    """Semantic + keyword search across the org's curated knowledge (Data Passport Gold layer)."""
+    """Semantic + keyword search across the org's curated knowledge (Orgbrain Gold layer)."""
     return await do_search(_pool, _identity, query, limit, department, team)
 
 

@@ -5,7 +5,7 @@ What the connector's PII layer (`gateway/policies/pii.py`, wired into
 from, and where it's weak. This is a reference snapshot, not a work log —
 see `docs/PII-PROGRAM.md` for the chronological build/test history.
 
-A teammate separately sent a much larger "Data Passport" DLP prototype (zip,
+A teammate separately sent a much larger "Orgbrain" DLP prototype (zip,
 since deleted). This doc also records what was taken from it and what was
 deliberately left out, so that decision survives the zip's deletion.
 

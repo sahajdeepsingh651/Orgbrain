@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hackathon-agent-layer"
 version = "0.1.0"
-description = "Context Engine & Data Passport Gateway for AI Agents"
+description = "Context Engine & Orgbrain Gateway for AI Agents"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [project.scripts]
-data-passport-interceptor = "gateway.cli:main"
+orgbrain-interceptor = "gateway.cli:main"
 
 [project.optional-dependencies]
 dev = [

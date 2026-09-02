@@ -132,7 +132,7 @@ command. Then answer:
 5. **Stable conversation identifier — still open.** None of the three
    captures show an obvious session key (relevant to ARCHITECTURE.md open
    question #2 — `passport_usage` attribution wants one; the
-   `<data-passport injected=...>` marker in §2.3 sidesteps this for
+   `<orgbrain injected=...>` marker in §2.3 sidesteps this for
    injection state specifically, but doesn't solve it generally).
 6. **Does Claude Code's own `role:"system"` usage survive against the real
    API on `claude-sonnet-5`?** New question, raised by the "surprising

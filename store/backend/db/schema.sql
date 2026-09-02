@@ -1,6 +1,6 @@
--- Data Passport — Core Service Postgres Schema
--- Matches data-passport-schema.md (envelope/core content/extension) and
--- data-passport-core-service.md §4 (Context Bus) and §7 build step 1.
+-- Orgbrain — Core Service Postgres Schema
+-- Matches orgbrain-schema.md (envelope/core content/extension) and
+-- orgbrain-core-service.md §4 (Context Bus) and §7 build step 1.
 -- Safe to re-run: every statement is idempotent.
 
 CREATE EXTENSION IF NOT EXISTS vector;
@@ -9,7 +9,7 @@ CREATE EXTENSION IF NOT EXISTS vector;
 CREATE TABLE IF NOT EXISTS knowledge_entries (
     record_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-    -- Envelope (data-passport-schema.md §2.A)
+    -- Envelope (orgbrain-schema.md §2.A)
     schema_version TEXT NOT NULL DEFAULT '1.2.0',
     session_id TEXT NOT NULL,
     source_system TEXT NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS knowledge_entries (
         CHECK (status IN ('in_progress', 'completed', 'blocked', 'handed_off', 'abandoned')),
     links JSONB NOT NULL DEFAULT '[]'::jsonb,
 
-    -- Core content (data-passport-schema.md §2.B)
+    -- Core content (orgbrain-schema.md §2.B)
     title TEXT NOT NULL,
     summary TEXT NOT NULL,
     intent TEXT,
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS knowledge_entries (
     review_status TEXT NOT NULL DEFAULT 'auto_extracted'
         CHECK (review_status IN ('auto_extracted', 'human_verified')),
 
-    -- Extension (data-passport-schema.md §2.C) — validated at the Gate against schemas/domains/*.json, not here.
+    -- Extension (orgbrain-schema.md §2.C) — validated at the Gate against schemas/domains/*.json, not here.
     domain TEXT,
     domain_data JSONB,
 
@@ -63,7 +63,7 @@ CREATE INDEX IF NOT EXISTS knowledge_entries_session_id_idx ON knowledge_entries
 CREATE INDEX IF NOT EXISTS knowledge_entries_created_at_idx ON knowledge_entries (created_at DESC);
 
 -- Audit trail from endpoint-reported sensitivity_flags metadata, plus Gate validation failures.
--- Never stores raw PII/secret values — see data-passport-architecture.md § The Endpoint Checkpoint.
+-- Never stores raw PII/secret values — see orgbrain-architecture.md § The Endpoint Checkpoint.
 CREATE TABLE IF NOT EXISTS redaction_audit_log (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     record_id UUID REFERENCES knowledge_entries (record_id) ON DELETE SET NULL,
@@ -123,8 +123,8 @@ CREATE INDEX IF NOT EXISTS agent_activity_department_idx ON agent_activity (depa
 CREATE INDEX IF NOT EXISTS agent_activity_project_idx ON agent_activity (project);
 CREATE INDEX IF NOT EXISTS agent_activity_updated_at_idx ON agent_activity (updated_at DESC);
 
--- Context Bus durable log (data-passport-core-service.md §4) — compact projection per
--- data-passport-schema.md §5, one row per commit. Append-only; NOTIFY fires on the same write.
+-- Context Bus durable log (orgbrain-core-service.md §4) — compact projection per
+-- orgbrain-schema.md §5, one row per commit. Append-only; NOTIFY fires on the same write.
 CREATE TABLE IF NOT EXISTS context_bus_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     record_id UUID NOT NULL,

@@ -2,7 +2,7 @@
 department, team), used both to authenticate ('is this a known token at all') and,
 for the serving endpoints, to enforce visibility filtering ('what can this identity see').
 Static file, not a real session/SSO system — deliberately no more elaborate than that
-for the hackathon (data-passport-core-service.md §3).
+for the hackathon (orgbrain-core-service.md §3).
 """
 
 import json

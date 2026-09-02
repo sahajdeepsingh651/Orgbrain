@@ -1,4 +1,4 @@
-# Data Passport — System Architecture
+# Orgbrain — System Architecture
 
 Status: draft, 2026-08-07. Layered: production target, with the 3-day demo cut marked
 inline as **[CUT]** / **[KEEP]**.
@@ -272,9 +272,9 @@ injected block with a machine-readable marker and read it back out of the incomi
 history:
 
 ```
-<data-passport injected="p_8a3f,p_91c2,p_004e" v="1">
+<orgbrain injected="p_8a3f,p_91c2,p_004e" v="1">
   ... rendered passports ...
-</data-passport>
+</orgbrain>
 ```
 
 On each request, scan `messages[]` for prior markers, union the passport ids, and inject

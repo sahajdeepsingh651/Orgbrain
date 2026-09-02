@@ -1,6 +1,6 @@
 """Integration test for the Context Bus write + NOTIFY (build step 3).
 
-Prerequisites: Postgres up and the REST server running (see docs/data-passport-setup.md).
+Prerequisites: Postgres up and the REST server running (see docs/orgbrain-setup.md).
 
 Verifies, with a real LISTEN client (not just a DB-side row check): a committed
 ingest produces a matching context_bus_events row AND fires a real NOTIFY with

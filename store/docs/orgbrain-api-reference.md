@@ -1,8 +1,8 @@
-# Data Passport — Core Service API Reference
+# Orgbrain — Core Service API Reference
 
-> Concrete request/response examples for everything built as of 2026-08-08 (all 6 steps of `data-passport-core-service.md` §7). That doc is the *design contract* with implementation notes woven in; this doc is the practical "how do I actually call this" reference, kept in sync with it. See `data-passport-setup.md` to get a server running first.
+> Concrete request/response examples for everything built as of 2026-08-08 (all 6 steps of `orgbrain-core-service.md` §7). That doc is the *design contract* with implementation notes woven in; this doc is the practical "how do I actually call this" reference, kept in sync with it. See `orgbrain-setup.md` to get a server running first.
 
-All endpoints require `Authorization: Bearer <token>`, where `<token>` is a key in `config/api_tokens.json` (see `data-passport-setup.md` §4 for the dev tokens this repo's tests use). A missing/unknown token gets `401 {"detail": "invalid or missing bearer token"}` from every endpoint below, including the SSE one.
+All endpoints require `Authorization: Bearer <token>`, where `<token>` is a key in `config/api_tokens.json` (see `orgbrain-setup.md` §4 for the dev tokens this repo's tests use). A missing/unknown token gets `401 {"detail": "invalid or missing bearer token"}` from every endpoint below, including the SSE one.
 
 Every endpoint's caller identity resolves to `{user_id, department, team}` (`backend/app/auth.py`). Where "visibility" is mentioned below, the rule is always the same one, defined once in `backend/app/serving.py`'s `VISIBILITY_CLAUSE`:
 
@@ -74,7 +74,7 @@ Note: `gold_ref` resolves — `GET /v1/knowledge/{record_id}` was added 2026-08-
 }
 ```
 
-The raw payload is always written to Bronze first (`bronze/{team|unassigned}/{source_system}/{yyyy-mm-dd}/{id}.json`) regardless of outcome, and a `redaction_audit_log` row is written with `outcome = 'quarantined'` and the same `{field, value, reason}` in `validation_failure`. Never a PII-related rejection — this endpoint doesn't scan for that (see `data-passport-core-service.md` §1).
+The raw payload is always written to Bronze first (`bronze/{team|unassigned}/{source_system}/{yyyy-mm-dd}/{id}.json`) regardless of outcome, and a `redaction_audit_log` row is written with `outcome = 'quarantined'` and the same `{field, value, reason}` in `validation_failure`. Never a PII-related rejection — this endpoint doesn't scan for that (see `orgbrain-core-service.md` §1).
 
 **Auth failure — `401`:** no Bronze write happens at all (auth runs before anything else).
 
@@ -117,7 +117,7 @@ curl -G http://127.0.0.1:8000/v1/search \
 
 **Derived**, not a separately-maintained ledger: each agent's single most recent `knowledge_entries` row (`DISTINCT ON (agent_id) ... ORDER BY created_at DESC`), visibility-filtered. There is no write path into this data other than `POST /v1/ingest` — `architecture.md`'s `announce_task` tool was never built (out of this build order's scope, see `decisions-log.md`).
 
-Query params: `team` (optional filter — actually filters). ⚠️ `project` is accepted for contract-compatibility but is a **silent no-op** — it returns unfiltered results rather than erroring, so a caller cannot tell it was ignored — no `project` field exists anywhere in `data-passport-schema.md`.
+Query params: `team` (optional filter — actually filters). ⚠️ `project` is accepted for contract-compatibility but is a **silent no-op** — it returns unfiltered results rather than erroring, so a caller cannot tell it was ignored — no `project` field exists anywhere in `orgbrain-schema.md`.
 
 ```bash
 curl http://127.0.0.1:8000/v1/agent-activity -H "Authorization: Bearer dev-local-token"
@@ -186,7 +186,7 @@ data: {"record_id": "...", "session_id": "sess-sse-live-1", "department": "Engin
 
 A bare `: keepalive` comment line arrives every 15s of inactivity (also doubles as the disconnect-detection interval).
 
-> **`private` events are never delivered to anyone over this stream — not even their own author.** The compact bus payload (`data-passport-schema.md` §5) has no `author_user_id` field, so there's nothing to check "is this mine" against. This is permanent by design, not a bug — see `decisions-log.md` (2026-08-08). `/v1/search` and `/v1/handoff` are unaffected; they query `knowledge_entries` directly, which does have `author_user_id`.
+> **`private` events are never delivered to anyone over this stream — not even their own author.** The compact bus payload (`orgbrain-schema.md` §5) has no `author_user_id` field, so there's nothing to check "is this mine" against. This is permanent by design, not a bug — see `decisions-log.md` (2026-08-08). `/v1/search` and `/v1/handoff` are unaffected; they query `knowledge_entries` directly, which does have `author_user_id`.
 
 ---
 
@@ -194,7 +194,7 @@ A bare `: keepalive` comment line arrives every 15s of inactivity (also doubles 
 
 Same three read operations, over MCP instead of REST — `search_knowledge`, `get_agent_activity`, `handoff` call the exact same `do_search`/`do_agent_activity`/`do_handoff` functions in `backend/app/serving.py` that the REST routes call. Not built: `record_insight`/`announce_task` (see `decisions-log.md`'s step-4/step-6 entries for why).
 
-Run via stdio (see `data-passport-setup.md` §5) — no REST server needs to be running for the MCP server itself, but it needs the same Postgres. Identity is fixed for the whole process via `MCP_API_TOKEN` in `.env`, not per-call (stdio has no header to carry a token).
+Run via stdio (see `orgbrain-setup.md` §5) — no REST server needs to be running for the MCP server itself, but it needs the same Postgres. Identity is fixed for the whole process via `MCP_API_TOKEN` in `.env`, not per-call (stdio has no header to carry a token).
 
 **Tools:**
 

@@ -1,4 +1,4 @@
-# Data Passport — Egress Gate (Endpoint Security)
+# Orgbrain — Egress Gate (Endpoint Security)
 
 > Status: Interception mechanism (§5) still **PROPOSED, not confirmed**. Policy configuration model (§3) and interception/extraction mechanics (§4) reflect team decisions made 2026-08-07 — see `decisions-log.md`. Updated 2026-08-07: what this doc originally called the "Ingestion Gate" (a separate, server-side checkpoint) has been merged into this one — PII detection/redaction happens in exactly one place, the endpoint device, for every outbound flow.
 
@@ -6,14 +6,14 @@
 
 PII/credential detection and redaction happens in exactly one place: **the endpoint device**, before anything leaves it. One shared on-device engine is invoked for two different outbound flows, each with its own destination policy:
 
-1. **Toward Data Passport's own ingest API** — always redact, no exceptions. Covered in `data-passport-architecture.md` § The Endpoint Checkpoint. This protects the org's own knowledge base from ever holding raw PII, even internally — no server-side scan, no exemption for "it's our own infrastructure."
+1. **Toward Orgbrain's own ingest API** — always redact, no exceptions. Covered in `orgbrain-architecture.md` § The Endpoint Checkpoint. This protects the org's own knowledge base from ever holding raw PII, even internally — no server-side scan, no exemption for "it's our own infrastructure."
 2. **Toward any external AI** — the Egress Gate proper, the rest of this doc: destination-based policy (§2), which does distinguish local/on-prem from external SaaS. (Same "one shared engine, many callers" idea as §5 Option D below — extended here to cover the ingest flow too, not just the AI-egress interception channels.)
 
 This is the other half of the project's thesis: not just "make knowledge travel," but "stop the data that shouldn't travel, at the earliest possible point" — which turned out to be the same point for both flows.
 
 One engine, two flows:
 
-| | Toward Data Passport (ingest) | Toward external AI (egress) |
+| | Toward Orgbrain (ingest) | Toward external AI (egress) |
 |---|---|---|
 | Location | Endpoint device, before `POST /v1/ingest` | Endpoint device, before any outbound AI call |
 | Protects | The shared knowledge base | The organization's data leaving to external AI |
@@ -31,7 +31,7 @@ One engine, two flows:
 **Content categories to detect:**
 1. **PII** — regex + NER: emails, phone numbers, names, customer IDs. Same on-device detection engine used for the ingest-bound flow (§1) — not a separate implementation.
 2. **Credentials/secrets** — API keys, tokens, connection strings (gitleaks-style pattern matching).
-3. **Confidential business data** (checked only for this AI-bound flow — content bound for Data Passport's own ingest API doesn't need this check; internal confidential business knowledge, gated by `visibility`, is exactly what the knowledge base is for):
+3. **Confidential business data** (checked only for this AI-bound flow — content bound for Orgbrain's own ingest API doesn't need this check; internal confidential business knowledge, gated by `visibility`, is exactly what the knowledge base is for):
    - Literal prices / currency figures in text (regex: currency symbols, "$X,XXX", "quote of", "margin of X%").
    - Financial and pricing documents — keyword/heuristic matching ("price list," "quote," "P&L," "confidential — pricing") as a first pass.
    - Optional, higher-precision: document fingerprinting — hash known confidential documents once (e.g., the actual price list, financial statements) and flag near-exact matches later. Catches copy-pasted content that keyword matching would miss, at the cost of needing a maintained corpus of fingerprinted docs.
@@ -47,7 +47,7 @@ Decided 2026-08-07: neither "the system silently checks everything" nor "the emp
 
 This keeps the "foolproof" property for whatever the org decides is non-negotiable, while giving employees real say (and reducing the "my employer silently wiretaps my whole device" objection) everywhere the org hasn't drawn a hard line.
 
-The same two-tier shape governs the **third, separate decision** of which sessions get linked into the shared knowledge lakehouse at all (not an Egress Gate concern — that's Data Passport's own consent model, see `data-passport-architecture.md` § Consent model). Same pattern, different checkpoint: admin-mandated categories auto-capture, everything else requires the employee's own opt-in action.
+The same two-tier shape governs the **third, separate decision** of which sessions get linked into the shared knowledge lakehouse at all (not an Egress Gate concern — that's Orgbrain's own consent model, see `orgbrain-architecture.md` § Consent model). Same pattern, different checkpoint: admin-mandated categories auto-capture, everything else requires the employee's own opt-in action.
 
 ## 4. Interception & extraction mechanics — how this actually works
 
@@ -70,7 +70,7 @@ The agent sets itself as the system's HTTP(S) proxy (or redirects traffic to its
 - **Context injection back into a session (stretch, not core):** for MCP tools, injecting retrieved knowledge is just a normal tool call. For a browser chat UI, there's no API to add hidden context into someone else's hosted session — the only lever is the proxy rewriting the outbound request body before it leaves (prepending retrieved context to the user's message). Only works for parsed services; flagged as a possible future capability, not a hackathon build target.
 
 ### 4.3 Path 3 — manual fallback
-For anything not covered by Path 1 or 2, the employee uses the Data Passport dashboard directly to search or record something. Zero engineering, always available, zero automation. Worth stating explicitly rather than implying total coverage exists.
+For anything not covered by Path 1 or 2, the employee uses the Orgbrain dashboard directly to search or record something. Zero engineering, always available, zero automation. Worth stating explicitly rather than implying total coverage exists.
 
 ## 5. Interception mechanism — options and trade-offs for Path 2
 

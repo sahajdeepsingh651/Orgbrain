@@ -1,13 +1,13 @@
 """Integration tests for GET /v1/bus/subscribe (SSE, build step 5).
 
-Prerequisites: Postgres up and the REST server running (see docs/data-passport-setup.md).
+Prerequisites: Postgres up and the REST server running (see docs/orgbrain-setup.md).
 
 Covers: replay/catch-up via `since`, live delivery gated by mandatory visibility,
 optional department/team narrowing, auth, and — since "the server still responds"
 isn't proof a connection was actually released — a real pg_stat_activity check
 that repeated open-and-abandon cycles don't leak Postgres connections (that check
 lives in this file's __main__ block as a documented manual follow-up; see
-docs/data-passport-stack.md §3 Build Log, 2026-08-08 SSE entry, for the numbers
+docs/orgbrain-stack.md §3 Build Log, 2026-08-08 SSE entry, for the numbers
 recorded when this was last done).
 """
 
@@ -157,7 +157,7 @@ async def test_disconnect_cleanup(client):
     resp2 = await client.get(f"{BASE}/v1/agent-activity", headers=hdr("dev"), timeout=10)
     ok = resp2.status_code == 200
     print(f"  server still responsive after abrupt disconnect: {resp2.status_code} -> {'OK' if ok else 'FAIL'}")
-    print("  (for a real connection-leak check across many cycles, see docs/data-passport-stack.md")
+    print("  (for a real connection-leak check across many cycles, see docs/orgbrain-stack.md")
     print("   §3 Build Log's 2026-08-08 SSE entry — it records the pg_stat_activity numbers from")
     print("   8 open-and-abandon cycles; re-run manually if you suspect a regression)")
     return ok

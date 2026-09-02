@@ -1,4 +1,4 @@
-# QA Test Guide — Data Passport Gateway
+# QA Test Guide — Orgbrain Gateway
 
 **Component under test:** `gateway/` (the interception proxy)
 **Audience:** a tester with no prior knowledge of this project

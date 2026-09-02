@@ -1,29 +1,29 @@
 services:
   postgres:
     image: pgvector/pgvector:pg16
-    container_name: data-passport-postgres
+    container_name: orgbrain-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-data_passport}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-data_passport}
-      POSTGRES_DB: ${POSTGRES_DB:-data_passport}
+      POSTGRES_USER: ${POSTGRES_USER:-orgbrain}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-orgbrain}
+      POSTGRES_DB: ${POSTGRES_DB:-orgbrain}
     ports:
       # Host-side 5433, not 5432 — avoids colliding with any native Postgres install on the host.
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-data_passport}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-orgbrain}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   backend:
-    image: data-passport-backend:latest
+    image: orgbrain-backend:latest
     build: 
       context: ./backend
       dockerfile: Dockerfile
-    container_name: data-passport-backend
+    container_name: orgbrain-backend
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -33,7 +33,7 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql://data_passport:data_passport@postgres:5432/data_passport
+      - DATABASE_URL=postgresql://orgbrain:orgbrain@postgres:5432/orgbrain
     volumes:
       - ./config:/app/config
 

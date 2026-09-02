@@ -1,4 +1,4 @@
-# Data Passport
+# Orgbrain
 
 **One organisational brain for every AI session — and one checkpoint that stops
 confidential data leaving through AI prompts.**
@@ -10,7 +10,7 @@ Two problems, one mechanism:
 - Data that shouldn't move does. Credentials and personal data leave through AI
   prompts — usually not typed by a human, but read out of a file by an agent.
 
-Data Passport puts an interceptor between every AI coding session and the model
+Orgbrain puts an interceptor between every AI coding session and the model
 API. It redacts on the way out and restores on the way back, retrieves colleagues'
 prior sessions when asked, and lets a session be saved to a shared Context Bus —
 **but only after a human approves exactly what will be stored.**
@@ -43,7 +43,7 @@ Their tool, commands, and workflow are unchanged.
    [Claude drafts the record. The gateway validates it, redacts anything
     sensitive, and shows you exactly what would be stored:]
 
-     ESDS Data Passport — draft a3f9c1d2 is PENDING YOUR APPROVAL.
+     ESDS Orgbrain — draft a3f9c1d2 is PENDING YOUR APPROVAL.
      Nothing has been written to the Context Bus.
        title      Push retry policy
        summary    Exponential backoff, capped at 30s...

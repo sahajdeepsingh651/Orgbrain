@@ -12,7 +12,7 @@ Correct behaviour: exactly one 201, N-1 × 200 "deduplicated", every
 response naming the SAME record_id, and exactly one row.
 
 Prerequisites (same as the other integration tests): Postgres up and the
-REST server running. See docs/data-passport-setup.md.
+REST server running. See docs/orgbrain-setup.md.
 Run:  .venv/bin/python tests/test_idempotency_race.py
 """
 

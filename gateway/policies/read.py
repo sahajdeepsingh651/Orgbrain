@@ -155,7 +155,7 @@ def render_awareness(hits: list[dict]) -> str:
     )
     n = len(hits)
     return (
-        f"ESDS Data Passport: {n} related session{'s' if n != 1 else ''} "
+        f"ESDS Orgbrain: {n} related session{'s' if n != 1 else ''} "
         f"may be relevant — {titles}. "
         "Tell the user they can type ESDS_SEARCH to retrieve the full records. "
         "Do not assume their contents."

@@ -2,7 +2,7 @@
 
 Visibility (private/team/department/org) is enforced here against the caller's
 identity (resolved from the bearer token, see app/auth.py) — a caller only ever
-receives what its identity is allowed to see (data-passport-core-service.md §5).
+receives what its identity is allowed to see (orgbrain-core-service.md §5).
 
 Known gap in /v1/search, left as documented and accepted (see decisions-log.md,
 2026-08-07): visibility is filtered on the ANN candidate set the HNSW index returns,
@@ -69,7 +69,7 @@ async def do_search(
     department: str | None = None, team: str | None = None,
 ) -> list[dict]:
     """Shared logic behind GET /v1/search and the search_knowledge MCP tool — one
-    implementation, two protocol faces (data-passport-core-service.md §5)."""
+    implementation, two protocol faces (orgbrain-core-service.md §5)."""
     embedding = list(get_embedding_model().embed([q]))[0].tolist()
 
     rows = await pool.fetch(

@@ -1,6 +1,6 @@
-# Glean — Research Notes & What's Useful for Data Passport
+# Glean — Research Notes & What's Useful for Orgbrain
 
-> Purpose: understand how a mature enterprise search/Work AI product (Glean, $7.2B) solves an adjacent problem, and pull out concrete ideas worth adopting. Not a spec — recommendations below need team confirmation before they change `data-passport-schema.md` or `data-passport-architecture.md`.
+> Purpose: understand how a mature enterprise search/Work AI product (Glean, $7.2B) solves an adjacent problem, and pull out concrete ideas worth adopting. Not a spec — recommendations below need team confirmation before they change `orgbrain-schema.md` or `orgbrain-architecture.md`.
 
 ## 1. What Glean is
 
@@ -62,14 +62,14 @@ CustomMetadata (schema group, declared per datasource):
 
 Key mechanism: **custom metadata fields declare a type up front**, and the API validates every value against that declared type at ingest — a document with a mismatched value gets a 400 error identifying exactly which doc and value failed. Type enforcement happens at the write boundary, not discovered later at query time.
 
-## 4. What's useful for Data Passport — recommendations
+## 4. What's useful for Orgbrain — recommendations
 
 | Idea from Glean | Where it'd apply in our design | Status |
 |---|---|---|
-| Typed, declared custom-metadata fields validated at ingest (400 on mismatch) | Our `domain_data` extension payload (`data-passport-schema.md` §4) currently says "validated against that domain's own schema" with no defined mechanism. Adopt: each domain schema file declares a type per field name; the Gate validates and rejects with a clear error, same as Glean's 400. | Proposed — needs team confirmation |
+| Typed, declared custom-metadata fields validated at ingest (400 on mismatch) | Our `domain_data` extension payload (`orgbrain-schema.md` §4) currently says "validated against that domain's own schema" with no defined mechanism. Adopt: each domain schema file declares a type per field name; the Gate validates and rejects with a clear error, same as Glean's 400. | Proposed — needs team confirmation |
 | Entity extraction *and linking* to a canonical registry, not just freeform tags | Our `entities[]` field (`{type, value}`) is freeform today. Consider resolving mentions against an entity registry at extraction time — same underlying problem as our department/entity-type vocabulary-drift discussion, just applied one level deeper (specific people/systems, not just categories). | Proposed — worth deciding alongside the vocabulary Gate design |
 | Three distinct ingestion paths (Indexed / Live-Tool / Context-only-no-index) | We currently only have one path: everything captured becomes a Silver/Gold record. Worth a real decision: should some session content flow through as context for the moment without ever becoming a permanent knowledge record? | Open question — not yet decided |
-| Data never leaves the tenant boundary (processing runs inside customer's own cloud project) | Direct external validation for our Egress Gate's on-prem-vs-external policy (`data-passport-security-egress.md`) — a $7.2B enterprise vendor's whole regulated-industry pitch rests on the same boundary logic we're already proposing. | Confirms existing design, no change needed |
+| Data never leaves the tenant boundary (processing runs inside customer's own cloud project) | Direct external validation for our Egress Gate's on-prem-vs-external policy (`orgbrain-security-egress.md`) — a $7.2B enterprise vendor's whole regulated-industry pitch rests on the same boundary logic we're already proposing. | Confirms existing design, no change needed |
 | Hybrid retrieval: vector similarity + graph-relationship signals + activity signals, not vector-only | Our Gold layer today is vector-only (pgvector). We already have a `links[]` field (continues_from, supersedes, related_to, etc.) in the envelope — could feed that into ranking as a relationship signal without needing a separate graph database. | Proposed — lightweight version achievable with what we already planned |
 | Permissions as explicit ACL (`allowAnonymousAccess`, `allowedUsers[]`) rather than a coarse visibility enum | Our `visibility` field is a 4-value enum (`private/team/department/org`). Simpler to build, but worth knowing the mature-product version is per-document explicit ACLs mirrored from source permissions. | Note only — enum is the right call for hackathon scope, ACL is the "if we had more time" answer |
 

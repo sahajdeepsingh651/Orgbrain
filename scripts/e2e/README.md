@@ -1,7 +1,7 @@
 # Layer 3 — live end-to-end acceptance
 
 These are NOT pytest. They need the Context Bus actually running (Postgres on
-5433 + `uvicorn app.main:app --port 8000`, see `store/docs/data-passport-setup.md`,
+5433 + `uvicorn app.main:app --port 8000`, see `store/docs/orgbrain-setup.md`,
 with `.venv/bin/python` on Linux rather than the doc's Windows paths).
 
 They drive `gateway.flows` against the real bus, seed their own data, assert,

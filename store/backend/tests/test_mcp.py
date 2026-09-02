@@ -1,7 +1,7 @@
 """Integration test for the MCP tool wrappers (build step 6).
 
 Prerequisites: Postgres up and the REST server running (used to seed test data via
-POST /v1/ingest — see docs/data-passport-setup.md). This test spawns
+POST /v1/ingest — see docs/orgbrain-setup.md). This test spawns
 backend/mcp_server.py itself as a subprocess; don't run it separately first.
 
 Uses a real MCP client (mcp.client.stdio + ClientSession) talking to an actual

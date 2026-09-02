@@ -5,7 +5,7 @@ from pathlib import Path
 # The directory we want to package
 SOURCE_DIR = "store"
 # The output archive name
-OUTPUT_FILE = "data_passport_store.tar.gz"
+OUTPUT_FILE = "orgbrain_store.tar.gz"
 
 # Folders and file extensions to ignore
 EXCLUDE_DIRS = {'.git', '.pytest_cache', 'bronze'}

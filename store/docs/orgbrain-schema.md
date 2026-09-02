@@ -1,4 +1,4 @@
-# Data Passport — Session Extraction Schema
+# Orgbrain — Session Extraction Schema
 
 > Status: DRAFT — update this file whenever the schema changes. Bump `schema_version` on any breaking change and note it in the Changelog at the bottom.
 >
@@ -13,7 +13,7 @@ A record has three parts:
 - **B. Core content** — the semantic payload that actually travels (required, universal)
 - **C. Extension** — domain-specific structured data (optional, namespaced per department)
 
-This schema is populated at the **Bronze → Silver** step (see `data-passport-architecture.md`): an extractor reads the session transcript — already redacted at the endpoint before it ever reached Bronze, see `data-passport-architecture.md` § The Endpoint Checkpoint — and fills in A + B + C.
+This schema is populated at the **Bronze → Silver** step (see `orgbrain-architecture.md`): an extractor reads the session transcript — already redacted at the endpoint before it ever reached Bronze, see `orgbrain-architecture.md` § The Endpoint Checkpoint — and fills in A + B + C.
 
 ## 2. Full schema
 
@@ -33,7 +33,7 @@ This schema is populated at the **Bronze → Silver** step (see `data-passport-a
 | `ended_at` | timestamp | Session end |
 | `captured_at` | timestamp | When this record was extracted into Bronze |
 | `visibility` | enum | `private` \| `team` \| `department` \| `org` — who/what can query it downstream |
-| `consent_basis` | enum | `admin_mandated` \| `user_opted_in` — why this record exists at all. Set at the moment `record_insight` is called: automatically for admin-mandated categories, or by the employee's own choice otherwise. See `data-passport-architecture.md` § Consent model |
+| `consent_basis` | enum | `admin_mandated` \| `user_opted_in` — why this record exists at all. Set at the moment `record_insight` is called: automatically for admin-mandated categories, or by the employee's own choice otherwise. See `orgbrain-architecture.md` § Consent model |
 | `consent_actor` | object `{type, id}` | `type` = `policy_rule` (with the rule id) if `admin_mandated`, or `type` = `user` (with the employee's id) if `user_opted_in` — audit trail for who/what caused this session to be linked to the passport |
 | `sensitivity_flags` | object | `{contains_pii: bool, contains_credentials: bool, redaction_applied: bool, redaction_count: int}` — populated by the endpoint's detection engine before transmission and passed through at ingest; the central Gate does not independently verify these (zero server-side PII scanning, by design — see `decisions-log.md`) |
 | `status` | enum | `in_progress` \| `completed` \| `blocked` \| `handed_off` \| `abandoned` |
@@ -171,4 +171,4 @@ The bus carries a small **notification + pointer**, not the full record — keep
 - `1.0.0` (draft) — initial schema defined: envelope + core content + domain extension pattern.
 - `1.1.0` — adopted from Glean research (`glean-research.md`): typed, validated `domain_data` fields with ingest-time rejection (§4.0).
 - `1.1.1` — reverted a speculative `entities[].ref_id` field added in 1.1.0 alongside the validated `domain_data` change; moved to Future Work instead (see above).
-- `1.2.0` — added `consent_basis` and `consent_actor` to the envelope: every record must now be traceable to either an admin-mandated policy rule or explicit employee opt-in. Resolves the previously open "ingestion paths" question in `data-passport-architecture.md`.
+- `1.2.0` — added `consent_basis` and `consent_actor` to the envelope: every record must now be traceable to either an admin-mandated policy rule or explicit employee opt-in. Resolves the previously open "ingestion paths" question in `orgbrain-architecture.md`.

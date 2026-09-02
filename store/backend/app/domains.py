@@ -1,4 +1,4 @@
-"""domain_data type validation against schemas/domains/*.json — data-passport-schema.md §4.0."""
+"""domain_data type validation against schemas/domains/*.json — orgbrain-schema.md §4.0."""
 
 import json
 from pathlib import Path

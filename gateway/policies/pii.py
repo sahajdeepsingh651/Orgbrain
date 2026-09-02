@@ -38,7 +38,7 @@ flow" bar (see PII-PROGRAM.md for the specific tradeoffs considered,
 including why NER for names was deferred rather than adopted).
 
 Checksum validators (Verhoeff/Aadhaar, Luhn/card, PAN holder-type digit,
-GSTIN mod-36) are adapted from a teammate's separate "Data Passport"
+GSTIN mod-36) are adapted from a teammate's separate "Orgbrain"
 submission — pure-stdlib math, no new dependency, no LLM, no NER, none of
 that submission's gazetteer/semantic/risk-scoring/policy-engine machinery.
 This module's job is narrower than that one (redact-before-send,

@@ -211,7 +211,7 @@ from here. Gitignored; may contain real content.
 | `.claude/settings.local.json` | Claude Code permissions for this repo |
 
 **Gitignored blobs in your working tree** — correctly excluded, but 625MB of local weight:
-`data_passport_store.tar.gz` (495M), `docker-24.0.5.tgz` (70M), `docker-compose` (60M
+`orgbrain_store.tar.gz` (495M), `docker-24.0.5.tgz` (70M), `docker-compose` (60M
 binary), `offline_model_cache.tar.gz` (61M), `store/offline_images.tar`.
 
 ---

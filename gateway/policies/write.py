@@ -32,7 +32,7 @@ import re
 from ..protocol.normalized import NormalizedRequest, NormalizedResponse
 from . import read as read_policy
 
-# Mirrors POST /v1/ingest (store/docs/data-passport-api-reference.md).
+# Mirrors POST /v1/ingest (store/docs/orgbrain-api-reference.md).
 VISIBILITY_VALUES = ("private", "team", "department", "org")
 STATUS_VALUES = ("in_progress", "completed", "blocked", "handed_off", "abandoned")
 OUTCOME_VALUES = ("decision_made", "insight_found", "issue_resolved",
@@ -244,7 +244,7 @@ def render_for_approval(pending_id: str, payload: dict, flags: dict,
     approval prompt."""
     k = payload.get("knowledge") or {}
     lines = [
-        f"ESDS Data Passport — draft {pending_id} is PENDING YOUR APPROVAL. "
+        f"ESDS Orgbrain — draft {pending_id} is PENDING YOUR APPROVAL. "
         "Nothing has been written to the Context Bus.",
         "",
         f"  title      {k.get('title', '')}",

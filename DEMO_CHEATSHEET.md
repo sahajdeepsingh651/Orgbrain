@@ -19,7 +19,7 @@ source .venv/bin/activate
 uvicorn app.main:app --port 8000 --env-file ../.env
 ```
 
-**Terminal 3: The Data Passport Gateway**
+**Terminal 3: The Orgbrain Gateway**
 ```bash
 source store/backend/.venv/bin/activate
 uvicorn gateway.app:app --port 8080
@@ -86,7 +86,7 @@ Point at the split screen. Show the audience how the left side contained the rea
 
 **What to point out on the Dashboard:**
 * **During `ESDS_SUBMIT`:** Switch to the **Approval Inbox** tab. Show that a new draft has appeared, but it is waiting for a human manager to approve it before it enters the enterprise bus.
-* **During `ESDS_APPROVE`:** Switch to the **Context Bus Explorer** tab. Show the audience that the draft has now been converted into a permanent "Data Passport" and is stored in the central enterprise database.
+* **During `ESDS_APPROVE`:** Switch to the **Context Bus Explorer** tab. Show the audience that the draft has now been converted into a permanent "Orgbrain" and is stored in the central enterprise database.
 
 ---
 

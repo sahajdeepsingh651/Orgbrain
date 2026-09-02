@@ -1,7 +1,7 @@
 """Integration tests for GET /v1/search, /v1/agent-activity, /v1/handoff (build step 4).
 
-Prerequisites: Postgres up and the REST server running (see docs/data-passport-setup.md).
-Uses the 3 dev identities from docs/data-passport-setup.md §4 (dev/eng2/sales) to
+Prerequisites: Postgres up and the REST server running (see docs/orgbrain-setup.md).
+Uses the 3 dev identities from docs/orgbrain-setup.md §4 (dev/eng2/sales) to
 exercise the full visibility matrix (private/team/department/org) across 5 records.
 """
 

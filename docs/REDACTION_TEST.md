@@ -1,4 +1,4 @@
-# Data Passport Redaction Testing Guide
+# Orgbrain Redaction Testing Guide
 
 This document contains a comprehensive list of test prompts to verify the Data Loss Prevention (DLP) and redaction capabilities of the Gateway. All examples use mathematically valid (checksum-passing) but entirely fake data.
 

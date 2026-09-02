@@ -1,6 +1,6 @@
 # Gateway — Component Overview
 
-**Component:** `gateway/` — the Data Passport interception gateway
+**Component:** `gateway/` — the Orgbrain interception gateway
 **Status:** working prototype; policies are test-grade, not production
 **Audience:** anyone joining the project, reviewing it, or testing it
 **Companion docs:** `ARCHITECTURE.md` (the design), `TEST-PLAN.md` (the validation
@@ -20,7 +20,7 @@ A reverse proxy that sits between an AI coding harness and the model API.
 
 ```
 ┌──────────────┐        ┌─────────────────────┐        ┌──────────────────┐
-│ Claude Code  │  POST  │   Data Passport     │  POST  │ api.anthropic.com│
+│ Claude Code  │  POST  │   Orgbrain     │  POST  │ api.anthropic.com│
 │ Cursor       │───────►│      Gateway        │───────►│                  │
 │ Aider, SDK…  │        │  (this component)   │        │                  │
 └──────────────┘◄───────└─────────────────────┘◄───────└──────────────────┘
@@ -266,7 +266,7 @@ serves WRITE's extraction trigger for free.
 ### Running it
 
 ```bash
-# the Context Bus must be up first — see store/docs/data-passport-setup.md
+# the Context Bus must be up first — see store/docs/orgbrain-setup.md
 .venv/bin/python -m uvicorn gateway.app:app --port 8080
 
 # separate terminal — NOT exported

@@ -155,7 +155,7 @@ PII_5 = BQXPM4521K (PAN)
 
 ## Update: ported checksum validators from a teammate's separate submission
 
-A teammate sent a much larger "Data Passport" DLP prototype (6-layer scanner
+A teammate sent a much larger "Orgbrain" DLP prototype (6-layer scanner
 + risk scoring + destination policy engine + LLM semantic layer). Reviewed
 it, kept only the lightweight, checksum-based pieces per instruction ("take
 what's better, leave the rest," "no LLMs for PII, keep the connector

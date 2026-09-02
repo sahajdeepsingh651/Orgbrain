@@ -1,6 +1,6 @@
 """POST /v1/ingest — stub Gate: Bronze write, provenance tagging, domain_data validation.
 No PII scanning/redaction here — that already happened on the endpoint device (out of scope
-for this service, see data-passport-architecture.md § The Endpoint Checkpoint).
+for this service, see orgbrain-architecture.md § The Endpoint Checkpoint).
 """
 
 import json
@@ -42,7 +42,7 @@ async def lifespan(app: FastAPI):
     await app.state.db_pool.close()
 
 
-app = FastAPI(title="Data Passport Core Service", lifespan=lifespan)
+app = FastAPI(title="Orgbrain Core Service", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], # For demo, allow all origins

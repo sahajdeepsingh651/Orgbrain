@@ -1,12 +1,12 @@
 """Integration tests for POST /v1/ingest (build step 2).
 
 Prerequisites: Postgres up (docker compose up -d) and the REST server running
-(uvicorn app.main:app --port 8000) — see docs/data-passport-setup.md.
+(uvicorn app.main:app --port 8000) — see docs/orgbrain-setup.md.
 
 Covers: happy path (with and without domain_data), auth failure before any Bronze
 write, and every validation-failure branch (each must return 422 + a quarantined
 redaction_audit_log row + zero knowledge_entries rows). Originally written during
-build step 2 — see docs/data-passport-stack.md §3 Build Log (2026-08-08 entries)
+build step 2 — see docs/orgbrain-stack.md §3 Build Log (2026-08-08 entries)
 for what these caught the first time around (a real SQL column/value-count bug).
 """
 
